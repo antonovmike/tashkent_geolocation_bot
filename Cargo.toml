@@ -1,0 +1,21 @@
+[package]
+name = "tashkent_guide"
+version = "0.1.0"
+edition = "2021"
+authors = ["Mike AntonovMA@outlook.com"]
+
+
+[dependencies]
+carapax = "0.12.0"
+tokio = { version = "1.17", features = ["macros", "rt-multi-thread"] }
+dotenv = "0.15.0"
+env_logger = "0.9.0"
+geo = "0.20.1"
+serde = "1.0.136"
+futures-util = "0.3"
+log = "0.4"
+glib-macros = "0.15.11"
+
+sqlite = "0.30.4"
+
+# sqlx = { version = "0.6", features = ["sqlite", "runtime-tokio-native-tls"] }
