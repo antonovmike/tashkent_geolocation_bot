@@ -39,14 +39,25 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             let mus_description = &museum.summ;
 			let mut vector: Vec<&str> = mus_description.lines().collect();
 
+            // api.execute(
+            //     SendMessage::new(chat_id.clone(), &museum.name).reply_markup(vec![vec![
+            //         InlineKeyboardButton::with_url("Web site",  &museum.site),
+            //     ]]),
+            // )
+            // .await?;
+
+            let photo_addr = format!("images/{}.jpg", museum.name);
+
             api.execute(
-                SendMessage::new(chat_id.clone(), &museum.name).reply_markup(vec![vec![
-                    InlineKeyboardButton::with_url("Web site",  &museum.site),
-                ]]),
+                SendPhoto::new(chat_id.clone(), InputFile::path(&photo_addr).await.unwrap())
+                    .caption(&museum.name)
+                    .caption_entities(&[TextEntity::bold(0..8)])
+                    .expect("Failed to make caption bold."),
             )
             .await?;
+
             api.execute(
-                SendMessage::new(chat_id.clone(), &museum.addr).reply_markup(vec![vec![
+                SendMessage::new(chat_id.clone(), &museum.summ).reply_markup(vec![vec![
                     InlineKeyboardButton::with_url("📍Open google map",  &museum.ggle),
                 ]]),
             )
@@ -74,13 +85,15 @@ fn distance(
 ) -> Vec<Museums> {
     let point_user = point!(x: lat_user, y: lon_user);
     db_vec.sort_by(|a, b| {
-        let distance_a = point_user.geodesic_distance(&point!(x: a.lngt, y: a.lttd));
-        let distance_b = point_user.geodesic_distance(&point!(x: b.lngt, y: b.lttd));
+        // let distance_a = point_user.geodesic_distance(&point!(x: a.lngt, y: a.lttd));
+        // let distance_b = point_user.geodesic_distance(&point!(x: b.lngt, y: b.lttd));
+        let distance_a = point_user.geodesic_distance(&point!(x: a.lttd, y: a.lngt));
+        let distance_b = point_user.geodesic_distance(&point!(x: b.lttd, y: b.lngt));
         distance_a
             .abs()
             .partial_cmp(&distance_b.abs())
             .expect("Failed to compare points.")
     });
-    db_vec.into_iter().take(3).collect()
+    db_vec.into_iter().take(1).collect()
 }
 
