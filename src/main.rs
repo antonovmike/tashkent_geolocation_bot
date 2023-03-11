@@ -11,7 +11,8 @@ use database::Museums;
 use dotenv::dotenv;
 use geo::point;
 use geo::prelude::*;
-use std::env;
+use std::path::Path;
+use std::{env, fs};
 use std::fmt::format;
 
 mod database;
@@ -46,7 +47,10 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             // )
             // .await?;
 
-            let photo_addr = format!("images/{}.jpg", museum.name);
+            let mut photo_addr = format!("images/{}.jpg", museum.name);
+            if !Path::new(&photo_addr).exists() {
+                photo_addr = "images/EMPTY.jpg".to_string();
+            }
 
             api.execute(
                 SendPhoto::new(chat_id.clone(), InputFile::path(&photo_addr).await.unwrap())
