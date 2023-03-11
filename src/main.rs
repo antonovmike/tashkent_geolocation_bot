@@ -85,8 +85,6 @@ fn distance(
 ) -> Vec<Museums> {
     let point_user = point!(x: lat_user, y: lon_user);
     db_vec.sort_by(|a, b| {
-        // let distance_a = point_user.geodesic_distance(&point!(x: a.lngt, y: a.lttd));
-        // let distance_b = point_user.geodesic_distance(&point!(x: b.lngt, y: b.lttd));
         let distance_a = point_user.geodesic_distance(&point!(x: a.lttd, y: a.lngt));
         let distance_b = point_user.geodesic_distance(&point!(x: b.lttd, y: b.lngt));
         distance_a
@@ -94,6 +92,6 @@ fn distance(
             .partial_cmp(&distance_b.abs())
             .expect("Failed to compare points.")
     });
-    db_vec.into_iter().take(1).collect()
+    db_vec.into_iter().take(2).collect()
 }
 
