@@ -1,4 +1,11 @@
 # tashkent_geolocation_bot
 A test project for Tashkent Guide Telegram Bot and Data Base
 
-Doesn't work yet: BD isn't set up
+Demo works
+
+TODO:
+
+Update DB
+
+Format messages
+

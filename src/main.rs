@@ -1,5 +1,4 @@
 #![allow(unused)]
-use crate::catalog::CoffeeHouse;
 use carapax::methods::SendPhoto;
 use carapax::types::{KeyboardButton, InlineKeyboardButton, InputFile, Message, MessageData, TextEntity};
 use carapax::{
@@ -8,12 +7,13 @@ use carapax::{
     types::{ChatId, Text, Update},
     Api, App, Context, ExecuteError, Ref,
 };
+use database::Museums;
 use dotenv::dotenv;
 use geo::point;
 use geo::prelude::*;
 use std::env;
+use std::fmt::format;
 
-mod catalog;
 mod buttons;
 mod database;
 
@@ -34,41 +34,34 @@ async fn main() {
 
 async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), ExecuteError> {
     if let MessageData::Location(location) = message.data {
-        for cafe in distance(
-            location.latitude.into(),
-            location.longitude.into(),
-            catalog::kofe_list(),
-        ) {
-			let caffee_description = &cafe.description;
-			let mut vector: Vec<&str> = caffee_description.lines().collect();
-			let name_length: u32 = vector[1].len().try_into().unwrap();
-			
+        let mus_struct = database::database().await;
+        for museum in distance(location.latitude.into(), location.longitude.into(), mus_struct) 
+        {
+            let mus_description = &museum.summ;
+			let mut vector: Vec<&str> = mus_description.lines().collect();
+
             api.execute(
-                SendPhoto::new(chat_id.clone(), InputFile::path(&cafe.photo).await.unwrap())
-                    .caption(&cafe.description)
-                    .caption_entities(&[TextEntity::bold(0..(name_length + 1))])
-                    .expect("Failed to make caption bold."),
+                SendMessage::new(chat_id.clone(), &museum.name).reply_markup(vec![vec![
+                    InlineKeyboardButton::with_url("Web site",  &museum.site),
+                ]]),
             )
             .await?;
             api.execute(
-                SendMessage::new(chat_id.clone(), &cafe.address).reply_markup(vec![vec![
-                    InlineKeyboardButton::with_url("📍Посмотреть на карте",  &cafe.google_maps),
+                SendMessage::new(chat_id.clone(), &museum.addr).reply_markup(vec![vec![
+                    InlineKeyboardButton::with_url("📍Open google map",  &museum.ggle),
                 ]]),
             )
             .await?;
         }
         api.execute(SendMessage::new(
             chat_id.clone(),
-            "database::database().await",
+            "If you need us again, send the geo-location to the chat room ☺️",
         ))
         .await?;
     } else {
-        // let message_db = database::database().await;
-        let mus_struct = database::database().await;
-        let message_db = mus_struct[0].name.clone();
         api.execute(SendMessage::new(
             chat_id.clone(),
-            message_db,
+            "Hi! To find the nearest museum, please send your geo-location to the chat.",
         ))
         .await?;
     };
@@ -78,51 +71,17 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
 fn distance(
     lat_user: f64,
     lon_user: f64,
-    mut list_of_coffe_houses: [CoffeeHouse; 46],
-) -> Vec<CoffeeHouse> {
+    mut db_vec: Vec<Museums>,
+) -> Vec<Museums> {
     let point_user = point!(x: lat_user, y: lon_user);
-    list_of_coffe_houses.sort_by(|a, b| {
-        let distance_a = point_user.geodesic_distance(&point!(x: a.location_x, y: a.location_y));
-        let distance_b = point_user.geodesic_distance(&point!(x: b.location_x, y: b.location_y));
+    db_vec.sort_by(|a, b| {
+        let distance_a = point_user.geodesic_distance(&point!(x: a.lngt, y: a.lttd));
+        let distance_b = point_user.geodesic_distance(&point!(x: b.lngt, y: b.lttd));
         distance_a
             .abs()
             .partial_cmp(&distance_b.abs())
             .expect("Failed to compare points.")
     });
-    list_of_coffe_houses.into_iter().take(3).collect()
+    db_vec.into_iter().take(3).collect()
 }
 
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_distance_gives_right_order() {
-        let point0 = (41.6963678, 44.8199377);
-        let point1 = (41.7255743, 44.746247);
-        let point2 = (41.7106533, 44.7447204);
-        let list_of_coffe_houses = catalog::kofe_list();
-        let distance_to_point_0 = distance(point0.0, point0.1, list_of_coffe_houses.clone());
-        let distance_to_point_1 = distance(point1.0, point1.1, list_of_coffe_houses.clone());
-        let distance_to_point_2 = distance(point2.0, point2.1, list_of_coffe_houses.clone());
-        assert_ne!(distance_to_point_0, distance_to_point_1);
-        assert_ne!(distance_to_point_1, distance_to_point_2);
-        assert_ne!(distance_to_point_2, distance_to_point_0);
-        dbg!(distance_to_point_0);
-        dbg!(distance_to_point_1);
-        dbg!(distance_to_point_2);
-    }
-
-    #[test]
-    fn test_tbilisi() {
-        let point0 = (41.720802, 44.721416);
-        let point1 = (41.727481, 44.793525);
-        let list_of_coffe_houses = catalog::kofe_list();
-        let distance_to_point_0 = distance(point0.0, point0.1, list_of_coffe_houses.clone());
-        let distance_to_point_1 = distance(point1.0, point1.1, list_of_coffe_houses.clone());
-        assert_ne!(distance_to_point_0, distance_to_point_1);
-        dbg!(distance_to_point_0);
-        dbg!(distance_to_point_1);
-    }
-}
