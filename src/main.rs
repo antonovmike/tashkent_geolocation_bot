@@ -14,7 +14,6 @@ use geo::prelude::*;
 use std::env;
 use std::fmt::format;
 
-mod buttons;
 mod database;
 
 #[tokio::main]

@@ -1,29 +1,18 @@
-// use tokio::{task, runtime::Handle};
-// use sqlx::{sqlite::{SqlitePool, SqlitePoolOptions}, Row};
-
-// pub async fn database() -> String {
-//     let pool = match SqlitePool::connect(&"db.sqlite3").await {
-//         Ok(it) => it,
-//         Err(err) => return "err 1".to_string(),
-//     };
-    
-//     let (id, name, summary, address, tel, price, schedule, dayoff, website): 
-//     (i64, String, String, String, String, String, String, String, String) 
-//     = match sqlx::query_as("SELECT * FROM catalog_museum").fetch_one(&pool).await {
-//         Ok(it) => it,
-//         Err(err) => return err.to_string(),
-//     };
-
-//     format!("{}\n{}", name, summary)
-// }
-
 use sqlite::State;
 
 pub struct Museums {
     pub name: String,
-    summ: String,
-    sche: String,
-    pric: String,
+    pub summ: String,
+    pub addr: String,
+    pub tele: String,
+    pub pric: String,
+    pub sche: String,
+    pub doff: String,
+    pub site: String,
+    pub gis2: String,
+    pub ggle: String,
+    pub lttd: f64,
+    pub lngt: f64,
 }
 
 pub async fn database() -> Vec<Museums> {
@@ -37,8 +26,16 @@ pub async fn database() -> Vec<Museums> {
         let temp_sctruct = Museums {
             name: statement.read::<String, _>("name").unwrap(),
             summ: statement.read::<String, _>("summary").unwrap(),
-            sche: statement.read::<String, _>("schedule").unwrap(),
+            addr: statement.read::<String, _>("address").unwrap(),
+            tele: statement.read::<String, _>("telephone").unwrap(),
             pric: statement.read::<String, _>("price").unwrap(),
+            sche: statement.read::<String, _>("schedule").unwrap(),
+            doff: statement.read::<String, _>("dayoff").unwrap(),
+            site: statement.read::<String, _>("website").unwrap(),
+            gis2: statement.read::<String, _>("map_2gis").unwrap(),
+            ggle: statement.read::<String, _>("map_google").unwrap(),
+            lttd: statement.read::<f64, _>("latitude").unwrap(),
+            lngt: statement.read::<f64, _>("longitude").unwrap(),
         };
         museums.push(temp_sctruct)
     }
