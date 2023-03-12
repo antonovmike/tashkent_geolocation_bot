@@ -40,11 +40,11 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             if !Path::new(&photo_addr).exists() {
                 photo_addr = "images/EMPTY.jpg".to_string();
             }
-            let lenght = museum.name.len() as u32;
+            let length = museum.name.len() as u32;
             api.execute(
                 SendPhoto::new(chat_id.clone(), InputFile::path(&photo_addr).await.unwrap())
                     .caption(&museum.name)
-                    .caption_entities(&[TextEntity::bold(0..lenght)])
+                    .caption_entities(&[TextEntity::bold(0..length)])
                     .expect("Failed to make caption bold."),
             )
             .await?;
@@ -58,14 +58,14 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
         }
         api.execute(SendMessage::new(
             chat_id.clone(),
-            "If you need us again, send the geo-location to the chat room ☺️",
+            "If you need us again, send your location to the chat room ☺️",
         ))
         .await?;
     } else {
         let send_location = KeyboardButton::new("Send location");
         api.execute(
             SendMessage::new(
-                chat_id.clone(), "Hi! To find the nearest museum, please send your geo-location to the chat."
+                chat_id.clone(), "Hi! To find the nearest museum, please send your location to the chat ☺️"
             ).reply_markup(vec![vec![
                 KeyboardButton::request_location(send_location),
             ]]),
