@@ -1,10 +1,10 @@
-#![allow(unused)]
+// #![allow(unused)]
 use carapax::methods::SendPhoto;
-use carapax::types::{KeyboardButton, InlineKeyboardButton, InputFile, Message, MessageData, TextEntity, InlineQuery, ReplyKeyboardMarkup};
+use carapax::types::{KeyboardButton, InlineKeyboardButton, InputFile, Message, MessageData, TextEntity};
 use carapax::{
     longpoll::LongPoll,
     methods::SendMessage,
-    types::{ChatId, Text, Update},
+    types::ChatId,
     Api, App, Context, ExecuteError, Ref,
 };
 use database::Museums;
@@ -12,8 +12,7 @@ use dotenv::dotenv;
 use geo::point;
 use geo::prelude::*;
 use std::path::Path;
-use std::{env, fs};
-use std::fmt::format;
+use std::env;
 
 mod database;
 
@@ -37,9 +36,6 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
         let mus_struct = database::database().await;
         for museum in distance(location.latitude.into(), location.longitude.into(), mus_struct) 
         {
-            let mus_description = &museum.summ;
-			let mut vector: Vec<&str> = mus_description.lines().collect();
-
             let mut photo_addr = format!("images/{}.jpg", museum.name);
             if !Path::new(&photo_addr).exists() {
                 photo_addr = "images/EMPTY.jpg".to_string();
@@ -68,7 +64,9 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
     } else {
         let send_location = KeyboardButton::new("Send location");
         api.execute(
-            SendMessage::new(chat_id.clone(), "Hi! To find the nearest museum, please send your geo-location to the chat.").reply_markup(vec![vec![
+            SendMessage::new(
+                chat_id.clone(), "Hi! To find the nearest museum, please send your geo-location to the chat."
+            ).reply_markup(vec![vec![
                 KeyboardButton::request_location(send_location),
             ]]),
         )
