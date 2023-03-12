@@ -105,7 +105,6 @@ mod tests {
         let point1 = (41.7255743, 44.746247);
         let point2 = (41.7106533, 44.7447204);
         let museums = database::database().await;
-        // let list_of_coffe_houses = catalog::kofe_list();
         let distance_to_point_0 = distance(point0.0, point0.1, museums.clone());
         let distance_to_point_1 = distance(point1.0, point1.1, museums.clone());
         let distance_to_point_2 = distance(point2.0, point2.1, museums);
