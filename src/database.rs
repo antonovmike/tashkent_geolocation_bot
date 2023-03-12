@@ -1,5 +1,6 @@
 use sqlite::State;
 
+#[derive(Debug, Clone)]
 pub struct Museums {
     pub name: String,
     pub summ: String,
