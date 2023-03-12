@@ -44,18 +44,18 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             if !Path::new(&photo_addr).exists() {
                 photo_addr = "images/EMPTY.jpg".to_string();
             }
-
+            let lenght = museum.name.len() as u32;
             api.execute(
                 SendPhoto::new(chat_id.clone(), InputFile::path(&photo_addr).await.unwrap())
                     .caption(&museum.name)
-                    .caption_entities(&[TextEntity::bold(0..8)])
+                    .caption_entities(&[TextEntity::bold(0..lenght)])
                     .expect("Failed to make caption bold."),
             )
             .await?;
 
             api.execute(
                 SendMessage::new(chat_id.clone(), &museum.summ).reply_markup(vec![vec![
-                    InlineKeyboardButton::with_url("📍Open google map",  &museum.ggle),
+                    InlineKeyboardButton::with_url("📍Open google map", &museum.ggle),
                 ]]),
             )
             .await?;
