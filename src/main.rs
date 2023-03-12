@@ -1,6 +1,6 @@
 #![allow(unused)]
 use carapax::methods::SendPhoto;
-use carapax::types::{KeyboardButton, InlineKeyboardButton, InputFile, Message, MessageData, TextEntity};
+use carapax::types::{KeyboardButton, InlineKeyboardButton, InputFile, Message, MessageData, TextEntity, InlineQuery, ReplyKeyboardMarkup};
 use carapax::{
     longpoll::LongPoll,
     methods::SendMessage,
@@ -42,7 +42,8 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
 
             // api.execute(
             //     SendMessage::new(chat_id.clone(), &museum.name).reply_markup(vec![vec![
-            //         InlineKeyboardButton::with_url("Web site",  &museum.site),
+            //         // InlineKeyboardButton::with_url("Web site",  &museum.site),
+            //         KeyboardButton::request_location()
             //     ]]),
             // )
             // .await?;
@@ -73,6 +74,20 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
         ))
         .await?;
     } else {
+        // ReplyKeyboardMarkup(keyboard=[[
+        //     KeyboardButton(
+        //         text="Location",
+        //         request_location=True
+        //     )
+        // ]])
+        let send_location = KeyboardButton::new("Send location");
+        let location_keyboard = KeyboardButton::request_location(send_location);
+        api.execute(
+            SendMessage::new(chat_id.clone(), "Hi! To find the nearest museum, please send your geo-location to the chat.").reply_markup(vec![vec![
+                KeyboardButton::request_location(location_keyboard),
+            ]]),
+        )
+        .await?;
         api.execute(SendMessage::new(
             chat_id.clone(),
             "Hi! To find the nearest museum, please send your geo-location to the chat.",
