@@ -40,14 +40,6 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             let mus_description = &museum.summ;
 			let mut vector: Vec<&str> = mus_description.lines().collect();
 
-            // api.execute(
-            //     SendMessage::new(chat_id.clone(), &museum.name).reply_markup(vec![vec![
-            //         // InlineKeyboardButton::with_url("Web site",  &museum.site),
-            //         KeyboardButton::request_location()
-            //     ]]),
-            // )
-            // .await?;
-
             let mut photo_addr = format!("images/{}.jpg", museum.name);
             if !Path::new(&photo_addr).exists() {
                 photo_addr = "images/EMPTY.jpg".to_string();
@@ -74,12 +66,6 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
         ))
         .await?;
     } else {
-        // ReplyKeyboardMarkup(keyboard=[[
-        //     KeyboardButton(
-        //         text="Location",
-        //         request_location=True
-        //     )
-        // ]])
         let send_location = KeyboardButton::new("Send location");
         let location_keyboard = KeyboardButton::request_location(send_location);
         api.execute(
@@ -87,11 +73,6 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
                 KeyboardButton::request_location(location_keyboard),
             ]]),
         )
-        .await?;
-        api.execute(SendMessage::new(
-            chat_id.clone(),
-            "Hi! To find the nearest museum, please send your geo-location to the chat.",
-        ))
         .await?;
     };
     Ok(())
