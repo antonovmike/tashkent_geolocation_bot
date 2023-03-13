@@ -38,7 +38,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
         {
             let mut photo_addr = format!("images/{}.jpg", museum.name);
             if !Path::new(&photo_addr).exists() {
-                photo_addr = "images/EMPTY.jpg".to_string();
+                photo_addr = "images/NO_PHOTO.jpg".to_string();
             }
             let length = museum.name.len() as u32;
             api.execute(
