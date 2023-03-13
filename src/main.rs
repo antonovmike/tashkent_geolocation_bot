@@ -48,7 +48,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
                     .expect("Failed to make caption bold."),
             )
             .await?;
-
+        
             api.execute(
                 SendMessage::new(chat_id.clone(), &museum.summ).reply_markup(vec![vec![
                     InlineKeyboardButton::with_url("📍Open google map", &museum.ggle),
