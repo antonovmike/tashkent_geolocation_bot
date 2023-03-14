@@ -58,15 +58,22 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
         }
         // api.execute(SendMessage::new(
         //     chat_id.clone(),
-        //     "If you need us again, send your location to the chat room ☺️",
+        //     "If you need me again, send your location to the chat room ☺️",
         // ))
         // .await?;
     } else {
         let send_location = KeyboardButton::request_location(KeyboardButton::new("Send location"));
-        let empty_button = KeyboardButton::new("Button 2");
+        let button_help = KeyboardButton::new("Help");
+        let button_en = KeyboardButton::new("EN");
+        let button_ru = KeyboardButton::new("RU");
+        let keyboard = vec![vec![send_location], vec![button_en, button_ru, button_help]];
         let key_raw = ReplyKeyboardMarkup::row(
-            ReplyKeyboardMarkup::default(), vec![send_location, empty_button]
+            ReplyKeyboardMarkup::from_vec(keyboard),
+            vec![]
         );
+        // let key_raw = ReplyKeyboardMarkup::row(
+        //     ReplyKeyboardMarkup::default(), vec![send_location, button_help]
+        // );
         let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_raw, true);
         let text = "Hi! To find the nearest museum, please send your location to the chat ☺️";
         let sendmessage = SendMessage::new(chat_id, text);
