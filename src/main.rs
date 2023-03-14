@@ -56,28 +56,18 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             )
             .await?;
         }
-    } else if "/command1" == Command::try_from(message.clone()).unwrap().get_name() {
+    } else if "/command1" == Command::try_from(message).unwrap().get_name() {
         api.execute(SendMessage::new(
             chat_id.clone(),
-            "(TEST /command1) Русский язык",
-        )).await?;
-    } else if "/command2" == Command::try_from(message.clone()).unwrap().get_name() {
-        api.execute(SendMessage::new(
-            chat_id.clone(),
-            "(TEST /command2) English language",
-        )).await?;
-    } else if "/command3" == Command::try_from(message).unwrap().get_name() {
-        api.execute(SendMessage::new(
-            chat_id.clone(),
-            "To find the nearest museum, please send your location to the chat ☺️",
+            "To find the nearest museum, please send your 📍 Location to the chat ☺️",
         )).await?;
     } else {
-        let send_location = KeyboardButton::request_location(KeyboardButton::new("Send location"));
+        let send_location = KeyboardButton::request_location(KeyboardButton::new("📍 Location"));
         let key_raw = ReplyKeyboardMarkup::row(
             ReplyKeyboardMarkup::default(), vec![send_location]
         );
         let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_raw, true);
-        let text = "Hi! To find the nearest museum, please send your location to the chat ☺️";
+        let text = "Hi! To find the nearest museum, please send your 📍 Location to the chat ☺️";
         let sendmessage = SendMessage::new(chat_id, text);
         let button_message = SendMessage::reply_markup(sendmessage, keyboard);
         api.execute(
