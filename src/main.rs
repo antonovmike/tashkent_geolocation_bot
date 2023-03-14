@@ -1,6 +1,6 @@
 // #![allow(unused)]
 use carapax::methods::SendPhoto;
-use carapax::types::{KeyboardButton, InlineKeyboardButton, InputFile, Message, MessageData, TextEntity};
+use carapax::types::{KeyboardButton, InlineKeyboardButton, InputFile, Message, MessageData, TextEntity, ReplyKeyboardMarkup};
 use carapax::{
     longpoll::LongPoll,
     methods::SendMessage,
@@ -63,12 +63,18 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
         .await?;
     } else {
         let send_location = KeyboardButton::new("Send location");
+        let requ_loc = KeyboardButton::request_location(send_location.clone());
+        let send_contact = KeyboardButton::new("empty button");
+        let key_mark = ReplyKeyboardMarkup::default();
+        let value = vec![requ_loc.clone(), send_contact];
+        let key_raw = ReplyKeyboardMarkup::row(key_mark.clone(), value.clone());
+        let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_raw, true);
         api.execute(
             SendMessage::new(
                 chat_id.clone(), "Hi! To find the nearest museum, please send your location to the chat ☺️"
-            ).reply_markup(vec![vec![
-                KeyboardButton::request_location(send_location),
-            ]]),
+            ).reply_markup(vec![
+                value
+            ]),
         )
         .await?;
     };
