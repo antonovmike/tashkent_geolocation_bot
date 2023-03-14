@@ -63,28 +63,15 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
         .await?;
     } else {
         let send_location = KeyboardButton::request_location(KeyboardButton::new("Send location"));
-        // let restart = KeyboardButton::new("/start");
-        let empty_button_1 = KeyboardButton::new("empty button 1");
-        let empty_button_2 = KeyboardButton::new("empty button 2");
-        let empty_button_3 = KeyboardButton::new("empty button 3");
-        let value = vec![send_location.clone(), empty_button_1];
-        let value_2 = vec![empty_button_2, empty_button_3];
-        let few_buttons = vec![value.clone(), value_2];
-        let vec_of_buttons = ReplyKeyboardMarkup::from_vec(few_buttons.clone());
-        let key_mark = ReplyKeyboardMarkup::default();
-        let key_raw = ReplyKeyboardMarkup::row(key_mark.clone(), value.clone());
+        let key_raw = ReplyKeyboardMarkup::row(
+            ReplyKeyboardMarkup::default(), vec![send_location]
+        );
         let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_raw, true);
-        // api.execute(
-        //     SendMessage::new(
-        //         chat_id.clone(), "Hi! To find the nearest museum, please send your location to the chat ☺️"
-        //     ).reply_markup(vec![
-        //         value
-        //     ]),
-        // )
-        // .await?;
-        let sendmessage = SendMessage::new(chat_id, "text");
+        let text = "Hi! To find the nearest museum, please send your location to the chat ☺️";
+        let sendmessage = SendMessage::new(chat_id, text);
+        let button_message = SendMessage::reply_markup(sendmessage.clone(), keyboard);
         api.execute(
-            SendMessage::reply_markup(sendmessage, few_buttons)
+            button_message
         ).await?;
     };
     Ok(())
