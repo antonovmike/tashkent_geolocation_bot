@@ -1,6 +1,6 @@
 // #![allow(unused)]
 use carapax::methods::SendPhoto;
-use carapax::types::{KeyboardButton, InlineKeyboardButton, InputFile, Message, MessageData, TextEntity, ReplyKeyboardMarkup};
+use carapax::types::{KeyboardButton, InlineKeyboardButton, InputFile, Message, MessageData, TextEntity, ReplyKeyboardMarkup, Command};
 use carapax::{
     longpoll::LongPoll,
     methods::SendMessage,
@@ -56,28 +56,30 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             )
             .await?;
         }
-        // api.execute(SendMessage::new(
-        //     chat_id.clone(),
-        //     "If you need me again, send your location to the chat room ☺️",
-        // ))
-        // .await?;
+    } else if "/command1" == Command::try_from(message.clone()).unwrap().get_name() {
+        api.execute(SendMessage::new(
+            chat_id.clone(),
+            "(TEST /command1) Русский язык",
+        )).await?;
+    } else if "/command2" == Command::try_from(message.clone()).unwrap().get_name() {
+        api.execute(SendMessage::new(
+            chat_id.clone(),
+            "(TEST /command2) English language",
+        )).await?;
+    } else if "/command3" == Command::try_from(message).unwrap().get_name() {
+        api.execute(SendMessage::new(
+            chat_id.clone(),
+            "To find the nearest museum, please send your location to the chat ☺️",
+        )).await?;
     } else {
         let send_location = KeyboardButton::request_location(KeyboardButton::new("Send location"));
-        let button_help = KeyboardButton::new("Help");
-        let button_en = KeyboardButton::new("EN");
-        let button_ru = KeyboardButton::new("RU");
-        let keyboard = vec![vec![send_location], vec![button_en, button_ru, button_help]];
         let key_raw = ReplyKeyboardMarkup::row(
-            ReplyKeyboardMarkup::from_vec(keyboard),
-            vec![]
+            ReplyKeyboardMarkup::default(), vec![send_location]
         );
-        // let key_raw = ReplyKeyboardMarkup::row(
-        //     ReplyKeyboardMarkup::default(), vec![send_location, button_help]
-        // );
         let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_raw, true);
         let text = "Hi! To find the nearest museum, please send your location to the chat ☺️";
         let sendmessage = SendMessage::new(chat_id, text);
-        let button_message = SendMessage::reply_markup(sendmessage.clone(), keyboard);
+        let button_message = SendMessage::reply_markup(sendmessage, keyboard);
         api.execute(
             button_message
         ).await?;
