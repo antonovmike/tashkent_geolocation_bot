@@ -7,9 +7,5 @@ Works
 
 Geo [location button](https://dev.to/antonov_mike/request-location-and-telegram-bot-4emk) now works
 
-TODO:
-
-Update DB
-
-Format messages
+Demo DB (SQLite, Python, Django)
 
