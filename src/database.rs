@@ -1,81 +1,31 @@
 use sqlite::State;
 
 #[derive(Debug, Clone)]
-pub struct Museums {
+pub struct Base {
     pub name: String,
     pub summ: String,
-    pub addr: String,
-    pub tele: String,
-    pub pric: String,
     pub sche: String,
-    pub doff: String,
-    pub site: String,
-    pub gis2: String,
     pub ggle: String,
     pub lttd: f64,
     pub lngt: f64,
 }
 
-pub async fn db_museums() -> Vec<Museums> {
+pub async fn base_data(typ: &str) -> Vec<Base> {
     let connection = sqlite::open("db.sqlite3").unwrap();
-    let query = "SELECT * FROM catalog_museum";
+    // "SELECT * FROM catalog_museum" or "SELECT * FROM catalog_cafe"
+    let query = &format!("SELECT * FROM {}", typ)[..];
     let mut statement = connection.prepare(query).unwrap();
 
-    let mut museums: Vec<Museums> = vec![];
+    let mut museums: Vec<Base> = vec![];
 
     while let Ok(State::Row) = statement.next() {
-        let temp_sctruct = Museums {
+        let temp_sctruct = Base {
             name: statement.read::<String, _>("name").unwrap(),
             summ: statement.read::<String, _>("summary").unwrap(),
-            addr: statement.read::<String, _>("address").unwrap(),
-            tele: statement.read::<String, _>("telephone").unwrap(),
-            pric: statement.read::<String, _>("price").unwrap(),
             sche: statement.read::<String, _>("schedule").unwrap(),
-            doff: statement.read::<String, _>("dayoff").unwrap(),
-            site: statement.read::<String, _>("website").unwrap(),
-            gis2: statement.read::<String, _>("map_2gis").unwrap(),
             ggle: statement.read::<String, _>("map_google").unwrap(),
             lttd: statement.read::<f64, _>("latitude").unwrap(),
             lngt: statement.read::<f64, _>("longitude").unwrap(),
-        };
-        museums.push(temp_sctruct)
-    }
-
-    museums
-}
-
-
-#[derive(Debug, Clone)]
-pub struct Cafe {
-    pub name: String,
-    pub summ: String,
-    pub addr: String,
-    pub sche: String,
-    pub gis2: String,
-    pub ggle: String,
-    pub lttd: f64,
-    pub lngt: f64,
-    pub pict: String,
-}
-
-pub async fn db_cafe() -> Vec<Cafe> {
-    let connection = sqlite::open("db.sqlite3").unwrap();
-    let query = "SELECT * FROM catalog_cafe";
-    let mut statement = connection.prepare(query).unwrap();
-
-    let mut museums: Vec<Cafe> = vec![];
-
-    while let Ok(State::Row) = statement.next() {
-        let temp_sctruct = Cafe {
-            name: statement.read::<String, _>("name").unwrap(),
-            summ: statement.read::<String, _>("summary").unwrap(),
-            addr: statement.read::<String, _>("address").unwrap(),
-            sche: statement.read::<String, _>("schedule").unwrap(),
-            gis2: statement.read::<String, _>("map_2gis").unwrap(),
-            ggle: statement.read::<String, _>("map_google").unwrap(),
-            lttd: statement.read::<f64, _>("latitude").unwrap(),
-            lngt: statement.read::<f64, _>("longitude").unwrap(),
-            pict: statement.read::<String, _>("picture").unwrap(),
         };
         museums.push(temp_sctruct)
     }
