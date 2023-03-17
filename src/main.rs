@@ -36,50 +36,31 @@ async fn main() {
 
 async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), ExecuteError> {
     if let MessageData::Location(location) = message.data {
-        let mus_struct = database::base_data("catalog_museum").await;
-        for museum in distance(location.latitude.into(), location.longitude.into(), mus_struct) {
-            let mut photo_addr = format!("images/museum/{}.jpg", museum.name);
-            if !Path::new(&photo_addr).exists() {
-                photo_addr = "images/NO_PHOTO.jpg".to_string();
+        let all_bases = ["catalog_museum", "catalog_cafe"];
+
+        for one_base in all_bases {
+            let base_struct = database::base_data(one_base).await;
+            for museum in distance(location.latitude.into(), location.longitude.into(), base_struct) {
+                let mut photo_addr = format!("images/{}/{}.jpg", one_base, museum.name);
+                if !Path::new(&photo_addr).exists() {
+                    photo_addr = "images/NO_PHOTO.jpg".to_string();
+                }
+                let length = museum.name.len() as u32;
+                api.execute(
+                    SendPhoto::new(chat_id.clone(), InputFile::path(&photo_addr).await.unwrap())
+                        .caption(&museum.name)
+                        .caption_entities(&[TextEntity::bold(0..length)])
+                        .expect("Failed to make caption bold."),
+                )
+                .await?;
+            
+                api.execute(
+                    SendMessage::new(chat_id.clone(), &museum.summ).reply_markup(vec![vec![
+                        InlineKeyboardButton::with_url("📍Open google map", &museum.ggle),
+                    ]]),
+                )
+                .await?;
             }
-            let length = museum.name.len() as u32;
-            api.execute(
-                SendPhoto::new(chat_id.clone(), InputFile::path(&photo_addr).await.unwrap())
-                    .caption(&museum.name)
-                    .caption_entities(&[TextEntity::bold(0..length)])
-                    .expect("Failed to make caption bold."),
-            )
-            .await?;
-        
-            api.execute(
-                SendMessage::new(chat_id.clone(), &museum.summ).reply_markup(vec![vec![
-                    InlineKeyboardButton::with_url("📍Open google map", &museum.ggle),
-                ]]),
-            )
-            .await?;
-        }
-        
-        let caf_struct = database::base_data("catalog_cafe").await;
-        for cafe in distance(location.latitude.into(), location.longitude.into(), caf_struct) {
-            let mut photo_addr = format!("images/cafe/{}.jpg", cafe.name);
-            if !Path::new(&photo_addr).exists() {
-                photo_addr = "images/NO_PHOTO.jpg".to_string();
-            }
-            let length = cafe.name.len() as u32;
-            api.execute(
-                SendPhoto::new(chat_id.clone(), InputFile::path(&photo_addr).await.unwrap())
-                    .caption(&cafe.name)
-                    .caption_entities(&[TextEntity::bold(0..length)])
-                    .expect("Failed to make caption bold."),
-            )
-            .await?;
-        
-            api.execute(
-                SendMessage::new(chat_id.clone(), &cafe.summ).reply_markup(vec![vec![
-                    InlineKeyboardButton::with_url("📍Open google map", &cafe.ggle),
-                ]]),
-            )
-            .await?;
         }
     } else {
         let send_location = KeyboardButton::request_location(KeyboardButton::new("📍 Location"));
