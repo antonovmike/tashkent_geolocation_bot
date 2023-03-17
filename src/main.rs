@@ -40,11 +40,14 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
 
         for one_base in all_bases {
             let base_struct = database::base_data(one_base).await;
-            for museum in distance(location.latitude.into(), location.longitude.into(), base_struct) {
+            for museum in distance(
+                location.latitude.into(), location.longitude.into(), base_struct
+            ) {
                 let mut photo_addr = format!("images/{}/{}.jpg", one_base, museum.name);
                 if !Path::new(&photo_addr).exists() {
                     photo_addr = "images/NO_PHOTO.jpg".to_string();
                 }
+
                 let length = museum.name.len() as u32;
                 api.execute(
                     SendPhoto::new(chat_id.clone(), InputFile::path(&photo_addr).await.unwrap())
@@ -63,7 +66,8 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             }
         }
     } else {
-        let send_location = KeyboardButton::request_location(KeyboardButton::new("📍 Location"));
+        let button_label = KeyboardButton::new("📍 Location");
+        let send_location = KeyboardButton::request_location(button_label);
         let key_raw = ReplyKeyboardMarkup::row(
             ReplyKeyboardMarkup::default(), vec![send_location]
         );

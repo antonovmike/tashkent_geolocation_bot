@@ -12,11 +12,12 @@ pub struct Base {
 
 pub async fn base_data(typ: &str) -> Vec<Base> {
     let connection = sqlite::open("db.sqlite3").unwrap();
-    // "SELECT * FROM catalog_museum" or "SELECT * FROM catalog_cafe"
+    // The variable typ should contain the name of the catalog from the database:
+    // "catalog_museum" or "catalog_cafe"
     let query = &format!("SELECT * FROM {}", typ)[..];
     let mut statement = connection.prepare(query).unwrap();
 
-    let mut museums: Vec<Base> = vec![];
+    let mut base_filds: Vec<Base> = vec![];
 
     while let Ok(State::Row) = statement.next() {
         let temp_sctruct = Base {
@@ -27,8 +28,8 @@ pub async fn base_data(typ: &str) -> Vec<Base> {
             lttd: statement.read::<f64, _>("latitude").unwrap(),
             lngt: statement.read::<f64, _>("longitude").unwrap(),
         };
-        museums.push(temp_sctruct)
+        base_filds.push(temp_sctruct)
     }
 
-    museums
+    base_filds
 }
