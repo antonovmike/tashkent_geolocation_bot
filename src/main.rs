@@ -38,7 +38,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
     if let MessageData::Location(location) = message.data {
         let mus_struct = database::base_data("catalog_museum").await;
         for museum in distance(location.latitude.into(), location.longitude.into(), mus_struct) {
-            let mut photo_addr = format!("images/{}.jpg", museum.name);
+            let mut photo_addr = format!("images/museum/{}.jpg", museum.name);
             if !Path::new(&photo_addr).exists() {
                 photo_addr = "images/NO_PHOTO.jpg".to_string();
             }
@@ -58,6 +58,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             )
             .await?;
         }
+        
         let caf_struct = database::base_data("catalog_cafe").await;
         for cafe in distance(location.latitude.into(), location.longitude.into(), caf_struct) {
             let mut photo_addr = format!("images/cafe/{}.jpg", cafe.name);
