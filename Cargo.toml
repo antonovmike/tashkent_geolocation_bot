@@ -15,7 +15,5 @@ serde = "1.0.136"
 futures-util = "0.3"
 log = "0.4"
 glib-macros = "0.15.11"
-
 sqlite = "0.30.4"
 
-# sqlx = { version = "0.6", features = ["sqlite", "runtime-tokio-native-tls"] }
