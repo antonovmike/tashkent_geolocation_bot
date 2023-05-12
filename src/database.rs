@@ -10,7 +10,7 @@ pub struct Base {
     pub lngt: f64,
 }
 
-pub async fn base_data(typ: &str) -> Vec<Base> {
+pub async fn base_data() -> Vec<Base> {
     let path = "./data.ods";
     let mut workbook = open_workbook_auto(path).unwrap();
     let sheet_name = workbook.sheet_names()[0].to_owned();
