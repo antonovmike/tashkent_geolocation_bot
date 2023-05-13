@@ -1,25 +1,25 @@
 use carapax::methods::SendPhoto;
 use carapax::types::{
-    KeyboardButton, InlineKeyboardButton, InputFile, Message, 
-    MessageData, TextEntity, ReplyKeyboardMarkup
+    InlineKeyboardButton, InputFile, KeyboardButton, Message, MessageData, ReplyKeyboardMarkup,
+    TextEntity,
 };
 use carapax::{
-    longpoll::LongPoll,
-    methods::SendMessage,
-    types::ChatId,
-    Api, App, Context, ExecuteError, Ref,
+    longpoll::LongPoll, methods::SendMessage, types::ChatId, Api, App, Context, ExecuteError, Ref,
 };
 use database::*;
 use dotenv::dotenv;
 use geo::point;
 use geo::prelude::*;
-use std::path::Path;
 use std::env;
+use std::path::Path;
 
 mod database;
+mod table_to_db;
 
 #[tokio::main]
 async fn main() {
+    table_to_db::to_base();
+
     dotenv().ok();
     env_logger::init();
 
@@ -39,7 +39,9 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
 
         let base_struct = database::base_data().await;
         for museum in distance(
-            location.latitude.into(), location.longitude.into(), base_struct
+            location.latitude.into(),
+            location.longitude.into(),
+            base_struct,
         ) {
             let mut photo_addr = format!("images/{}/{}.jpg", "catalog_museum", museum.name);
             if !Path::new(&photo_addr).exists() {
@@ -54,7 +56,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
                     .expect("Failed to make caption bold."),
             )
             .await?;
-            
+
             api.execute(
                 SendMessage::new(chat_id.clone(), &museum.summ).reply_markup(vec![vec![
                     InlineKeyboardButton::with_url("📍Open google map", &museum.ggle),
@@ -65,25 +67,17 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
     } else {
         let button_label = KeyboardButton::new("📍 Location");
         let send_location = KeyboardButton::request_location(button_label);
-        let key_raw = ReplyKeyboardMarkup::row(
-            ReplyKeyboardMarkup::default(), vec![send_location]
-        );
+        let key_raw = ReplyKeyboardMarkup::row(ReplyKeyboardMarkup::default(), vec![send_location]);
         let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_raw, true);
         let text = "Hi! To find the nearest museum, please send your 📍 Location to the chat ☺️";
         let sendmessage = SendMessage::new(chat_id, text);
         let button_message = SendMessage::reply_markup(sendmessage, keyboard);
-        api.execute(
-            button_message
-        ).await?;
+        api.execute(button_message).await?;
     };
     Ok(())
 }
 
-fn distance(
-    lat_user: f64,
-    lon_user: f64,
-    mut db_vec: Vec<Base>,
-) -> Vec<Base> {
+fn distance(lat_user: f64, lon_user: f64, mut db_vec: Vec<Base>) -> Vec<Base> {
     let point_user = point!(x: lat_user, y: lon_user);
     db_vec.sort_by(|a, b| {
         let distance_a = point_user.geodesic_distance(&point!(x: a.lttd, y: a.lngt));
@@ -95,7 +89,6 @@ fn distance(
     });
     db_vec.into_iter().take(2).collect()
 }
-
 
 #[cfg(test)]
 mod tests {

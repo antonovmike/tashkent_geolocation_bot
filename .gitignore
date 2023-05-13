@@ -12,5 +12,6 @@ Cargo.lock
 /.env
 /.vscode
 
+db.sql
 .~lock.catalog_museum.csv#
 .~lock.data.ods#
