@@ -1,5 +1,5 @@
-use calamine::{open_workbook_auto, Reader};
-
+use sqlite::State;
+// name TEXT, summary TEXT, schedule TEXT, map TEXT, latitude TEXT, longitude TEXT
 #[derive(Debug, Clone)]
 pub struct Base {
     pub name: String,
@@ -11,21 +11,20 @@ pub struct Base {
 }
 
 pub async fn base_data() -> Vec<Base> {
-    let path = "./data.ods";
-    let mut workbook = open_workbook_auto(path).unwrap();
-    let sheet_name = workbook.sheet_names()[0].to_owned();
-    let range = workbook.worksheet_range(&sheet_name).unwrap();
+    let connection = sqlite::open("db.sql").unwrap();
+    let query = "SELECT * FROM museums";
+    let mut statement = connection.prepare(query).unwrap();
 
     let mut base_filds: Vec<Base> = vec![];
 
-    for row in range.expect("REASON").rows() {
+    while let Ok(State::Row) = statement.next() {
         let temp_sctruct = Base {
-            name: row[0].to_string(),
-            summ: row[1].to_string(),
-            sche: row[2].to_string(),
-            ggle: row[3].to_string(),
-            lttd: row[4].to_string().parse::<f64>().unwrap(),
-            lngt: row[5].to_string().parse::<f64>().unwrap(),
+            name: statement.read::<String, _>("name").unwrap(),
+            summ: statement.read::<String, _>("summary").unwrap(),
+            sche: statement.read::<String, _>("schedule").unwrap(),
+            ggle: statement.read::<String, _>("map").unwrap(),
+            lttd: statement.read::<f64, _>("latitude").unwrap(),
+            lngt: statement.read::<f64, _>("longitude").unwrap(),
         };
         base_filds.push(temp_sctruct)
     }

@@ -1,6 +1,5 @@
 use calamine::{open_workbook_auto, DataType, Reader};
-// use sqlite::State;
-// name, sum, shedule, googlemap, latitude, longitude
+
 pub fn to_base() {
     let path = "data.ods";
     let mut workbook = open_workbook_auto(path).unwrap();
@@ -34,11 +33,4 @@ pub fn to_base() {
         );
         connection.execute(&query).unwrap();
     }
-
-    // let query = "SELECT * FROM museums";
-    // let mut statement = connection.prepare(query).unwrap();
-
-    // while let Ok(State::Row) = statement.next() {
-    //     println!("{}", statement.read::<String, _>("name").unwrap());
-    // }
 }
