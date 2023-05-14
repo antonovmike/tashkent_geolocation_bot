@@ -15,6 +15,8 @@ pub fn to_base() {
     }
 
     let connection = sqlite::open("db.sql").unwrap();
+    let query = "DROP TABLE IF EXISTS museums";
+    connection.execute(query).unwrap();
     let query = "CREATE TABLE IF NOT EXISTS museums (name TEXT, summary TEXT, schedule TEXT, map TEXT, latitude TEXT, longitude TEXT);";
     connection.execute(query).unwrap();
 
