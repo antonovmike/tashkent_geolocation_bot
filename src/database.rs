@@ -1,4 +1,5 @@
 use sqlite::State;
+
 // name TEXT, summary TEXT, schedule TEXT, map TEXT, latitude TEXT, longitude TEXT
 #[derive(Debug, Clone)]
 pub struct Base {

@@ -1,8 +1,17 @@
 use calamine::{open_workbook_auto, DataType, Reader};
 
-pub fn to_base() {
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("failed to open spreadsheet file: {0}")]
+    TableErr(#[from] calamine::Error),
+
+    #[error("failed to create .sql file: {0}")]
+    SqlError(#[from] sqlite::Error),
+}
+
+pub fn to_base() -> Result<(), Error>{
     let path = "data.ods";
-    let mut workbook = open_workbook_auto(path).unwrap();
+    let mut workbook = open_workbook_auto(path)?;
 
     // Select the first worksheet
     let sheet_name = workbook.sheet_names()[0].to_owned();
@@ -14,7 +23,7 @@ pub fn to_base() {
         table_content.push(row.to_vec());
     }
 
-    let connection = sqlite::open("db.sql").unwrap();
+    let connection = sqlite::open("db.sql")?;
     let query = "DROP TABLE IF EXISTS museums";
     connection.execute(query).unwrap();
     let query = "CREATE TABLE IF NOT EXISTS museums (name TEXT, summary TEXT, schedule TEXT, map TEXT, latitude TEXT, longitude TEXT);";
@@ -33,6 +42,8 @@ pub fn to_base() {
             museum[4].to_string(),
             museum[5].to_string()
         );
-        connection.execute(&query).unwrap();
+        connection.execute(&query)?;
     }
+
+    Ok(())
 }

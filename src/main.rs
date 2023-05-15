@@ -27,7 +27,10 @@ enum Error {
 
 #[tokio::main]
 async fn main() {
-    table_to_db::to_base();
+    let spreadsheet_reader = table_to_db::to_base();
+    if spreadsheet_reader.is_err() {
+        println!("Table to db Error: {:?}", spreadsheet_reader);
+    }
 
     dotenv().ok();
     env_logger::init();
