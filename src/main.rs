@@ -4,7 +4,7 @@ use carapax::types::{
     TextEntity,
 };
 use carapax::{
-    longpoll::LongPoll, methods::SendMessage, types::ChatId, Api, App, Context, ExecuteError, Ref,
+    longpoll::LongPoll, methods::SendMessage, types::ChatId, Api, App, Context,  Ref,
 };
 use database::*;
 use dotenv::dotenv;
@@ -15,6 +15,15 @@ use std::path::Path;
 
 mod database;
 mod table_to_db;
+
+#[derive(Debug, thiserror::Error)]
+enum Error {
+    #[error("failed to open file: {0}")]
+    IoError(#[from] std::io::Error),
+
+    #[error("failed to execute")]
+    ExecuteError(#[from] carapax::ExecuteError),
+}
 
 #[tokio::main]
 async fn main() {
@@ -33,7 +42,7 @@ async fn main() {
     LongPoll::new(api, app).run().await
 }
 
-async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), ExecuteError> {
+async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Error> {
     if let MessageData::Location(location) = message.data {
         // let all_bases = ["catalog_museum", "catalog_cafe"];
 
@@ -50,7 +59,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
 
             let length = museum.name.len() as u32;
             api.execute(
-                SendPhoto::new(chat_id.clone(), InputFile::path(&photo_addr).await.unwrap())
+                SendPhoto::new(chat_id.clone(), InputFile::path(&photo_addr).await?)
                     .caption(&museum.name)
                     .caption_entities(&[TextEntity::bold(0..length)])
                     .expect("Failed to make caption bold."),
