@@ -1,4 +1,4 @@
-use sqlite::State;
+use sqlite::{State, Error};
 
 // name TEXT, summary TEXT, schedule TEXT, map TEXT, latitude TEXT, longitude TEXT
 #[derive(Debug, Clone)]
@@ -11,24 +11,24 @@ pub struct Base {
     pub lngt: f64,
 }
 
-pub async fn base_data() -> Vec<Base> {
-    let connection = sqlite::open("db.sql").unwrap();
+pub async fn base_data() -> Result<Vec<Base>, Error> {
+    let connection = sqlite::open("db.sql")?;
     let query = "SELECT * FROM museums";
-    let mut statement = connection.prepare(query).unwrap();
+    let mut statement = connection.prepare(query)?;
 
     let mut base_filds: Vec<Base> = vec![];
 
     while let Ok(State::Row) = statement.next() {
         let temp_sctruct = Base {
-            name: statement.read::<String, _>("name").unwrap(),
-            summ: statement.read::<String, _>("summary").unwrap(),
-            sche: statement.read::<String, _>("schedule").unwrap(),
-            ggle: statement.read::<String, _>("map").unwrap(),
-            lttd: statement.read::<f64, _>("latitude").unwrap(),
-            lngt: statement.read::<f64, _>("longitude").unwrap(),
+            name: statement.read::<String, _>("name")?,
+            summ: statement.read::<String, _>("summary")?,
+            sche: statement.read::<String, _>("schedule")?,
+            ggle: statement.read::<String, _>("map")?,
+            lttd: statement.read::<f64, _>("latitude")?,
+            lngt: statement.read::<f64, _>("longitude")?,
         };
         base_filds.push(temp_sctruct)
     }
 
-    base_filds
+    Ok(base_filds)
 }
