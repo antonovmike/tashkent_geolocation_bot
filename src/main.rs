@@ -23,6 +23,9 @@ enum Error {
 
     #[error("failed to execute")]
     ExecuteError(#[from] carapax::ExecuteError),
+
+    #[error("failed to execute")]
+    SqlError(#[from] sqlite::Error),
 }
 
 #[tokio::main]
@@ -53,7 +56,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Er
         for museum in distance(
             location.latitude.into(),
             location.longitude.into(),
-            base_struct.unwrap(),
+            base_struct?,
         ) {
             let mut photo_addr = format!("images/{}/{}.jpg", "catalog_museum", museum.name);
             if !Path::new(&photo_addr).exists() {
