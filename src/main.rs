@@ -6,12 +6,14 @@ use carapax::types::{
 use carapax::{
     longpoll::LongPoll, methods::SendMessage, types::ChatId, Api, App, Context,  Ref,
 };
-use database::*;
 use dotenv::dotenv;
 use geo::point;
 use geo::prelude::*;
+
 use std::env;
 use std::path::Path;
+
+use database::*;
 
 mod database;
 mod table_to_db;
