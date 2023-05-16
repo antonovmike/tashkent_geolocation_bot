@@ -5,7 +5,7 @@ pub enum Error {
     #[error("failed to open spreadsheet file: {0}")]
     TableErr(#[from] calamine::Error),
 
-    #[error("failed to create .sql file: {0}")]
+    #[error("sql error: {0}")]
     SqlError(#[from] sqlite::Error),
 }
 
@@ -25,9 +25,9 @@ pub fn to_base() -> Result<(), Error>{
 
     let connection = sqlite::open("db.sql")?;
     let query = "DROP TABLE IF EXISTS museums";
-    connection.execute(query).unwrap();
+    connection.execute(query)?;
     let query = "CREATE TABLE IF NOT EXISTS museums (name TEXT, summary TEXT, schedule TEXT, map TEXT, latitude TEXT, longitude TEXT);";
-    connection.execute(query).unwrap();
+    connection.execute(query)?;
 
     for museum in table_content {
         let name = museum[0].to_string().replace("'", "''");
